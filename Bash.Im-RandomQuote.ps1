@@ -9,22 +9,26 @@
 #>
 
 $quoteslist = New-Object Collections.ArrayList
+Function Load-Bash #Загрузка цитат с баша
+{
 $cur_year = Get-Date -uformat %Y
 $old_year = $cur_year - 5
 
 $url = "http://bash.im/best/"
 
 for ([int] $i = $cur_year; $i -gt $old_year; $i--)
-{
+    {
     $page = $url + $i
     $WebResponse = (Invoke-WebRequest -Uri $page -UserAgent "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.124 Safari/537.36")
 
     $quotes = ($WebResponse.ParsedHtml.DocumentElement.GetElementsByTagName('div') | Where { $_.ClassName -match '\bquote__body\b'}).InnerText
     $add = $quoteslist.Add($quotes)
+    }
 }
 
 Function Bash # Функция, чтобы можно было вручную выводить случайную цитату
 {
+  if ($quoteslist) { } else { Load-Bash }
   $randomYear = get-random $quoteslist.Count
   $randomQuote = get-random $quoteslist[$randomYear].Count
   Write-Host $quoteslist[$randomYear].Get($randomQuote) -foreground Yellow
